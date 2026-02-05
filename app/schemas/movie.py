@@ -32,7 +32,7 @@ class MovieRead(BaseModel):
     description: Optional[str]
     year: Optional[int]
     director_id: Optional[int]
-    genres: List[int] = []
+    genres: List[int] = Field(default_factory=list)
 
     class Config:
         from_attributes = True

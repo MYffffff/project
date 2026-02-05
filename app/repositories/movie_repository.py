@@ -1,5 +1,6 @@
 from typing import List, Optional
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.models import Movie, Genre
 
@@ -9,11 +10,13 @@ class MovieRepository:
         self.session = session
 
     async def list(self) -> List[Movie]:
-        result = await self.session.execute(select(Movie).order_by(Movie.id))
+        stmt = select(Movie).options(selectinload(Movie.genres)).order_by(Movie.id)
+        result = await self.session.execute(stmt)
         return list(result.scalars().unique().all())
 
     async def get(self, movie_id: int) -> Optional[Movie]:
-        result = await self.session.execute(select(Movie).where(Movie.id == movie_id))
+        stmt = select(Movie).options(selectinload(Movie.genres)).where(Movie.id == movie_id)
+        result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def create(self, movie: Movie, genre_ids: Optional[list[int]] = None) -> Movie:

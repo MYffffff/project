@@ -1,55 +1,31 @@
-Movies & Series Catalog API
+Каталог фильмов и сериалов (FastAPI)
 
-Stack: FastAPI, PostgreSQL, SQLAlchemy (async), Alembic, Docker Compose
+Стек: FastAPI, PostgreSQL, SQLAlchemy (async), Alembic, Docker Compose
 
-Project structure
-- app/
-  - main.py
-  - core/
-    - config.py
-  - db/
-    - session.py
-  - models/
-    - models.py
-  - schemas/
-    - movie.py
-  - repositories/
-    - movie_repository.py
-  - api/
-    - deps.py
-    - routers/
-      - movies.py
-- alembic/
-  - env.py
-  - versions/
-    - 20240210_000001_init.py
-- alembic.ini
-- requirements.txt
-- Dockerfile
-- docker-compose.yml
-- .env
-
-Running locally with Docker Compose
-1. Ensure Docker is installed and running.
-2. Adjust values in .env if needed.
-3. Start services:
+Запуск
+1) Установите и запустите Docker Desktop.
+2) Проверьте переменные в .env (по умолчанию уже настроено).
+3) Старт:
    docker compose up --build
-4. Open Swagger UI:
-   http://localhost:8000/docs
+4) Swagger UI: http://localhost:8000/docs
+   Health-check: http://localhost:8000/health
 
-Database connection is read from environment variables in .env and injected into both services by docker-compose.
+CRUD для фильмов
+- GET /movies — список
+- GET /movies/{id} — получить по id
+- POST /movies — создать
+- PUT /movies/{id} — полное обновление
+- PATCH /movies/{id} — частичное обновление
+- DELETE /movies/{id} — удалить
 
-Alembic migrations
-- Migrations are executed automatically on container start (alembic upgrade head).
+Данные и связи
+- В базе: фильмы, сериалы, жанры, режиссёры; жанры связаны с фильмами и сериалами (many-to-many).
+- Для фильмов можно ��ередавать director_id и genre_ids (идентификаторы должны существовать в БД).
 
-CRUD endpoints for movies
-- GET /movies
-- GET /movies/{id}
-- POST /movies
-- PUT /movies/{id}
-- PATCH /movies/{id}
-- DELETE /movies/{id}
+Транзакционность
+- Каждая операция выполняется внутри транзакции (ACID) через session.begin().
 
-Notes
-- ACID: Each request handler uses a session with an explicit transaction (session.begin) to ensure atomic DB operations; constraints and FKs enforce consistency.
-- You can pre-create genres and directors via future endpoints or direct SQL inserts to test relations, or pass genre_ids and director_id that exist.
+Структура
+- app/ — приложение (роуты, модели, схемы, репозитории)
+- alembic/ — миграции
+- Dockerfile, docker-compose.yml, .env
